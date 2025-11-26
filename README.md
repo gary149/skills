@@ -7,6 +7,8 @@ Skills are self-contained folders that package instructions, scripts, and resour
 > [!NOTE]
 > 'Skills' is actually an Anthropic term used within Claude Code and not adopted by other agent tools, but we love it! OpenAI Codex uses an `AGENTS.md` file to define the instructions for your coding agent. Google Gemini uses 'extensions' to define the instructions for your coding agent in a `gemini-extension.json` file.
 
+--- 
+
 ## Humanity's Last Hackathon (of 2025)
 
 <img src="assets/banner.png" alt="Humanity's Last Hackathon (of 2025)" width="100%">
@@ -23,17 +25,11 @@ Skills are self-contained folders that package instructions, scripts, and resour
 
 ---
 
-## Using Hugging Face skills with your coding agent
+## Installation
 
-### Repository layout
+Hugging Face skills are compatible with Claude Code, Codex, and Gemini CLI. With integrations Cursor, Windsurf, and Continue, on the way.
 
-- `hf_dataset_creator/` – prompts, templates, and scripts for creating structured training data sets. Includes reusable templates in `templates/`, sample prompts in `examples/`, and orchestration code in `scripts/dataset_manager.py`.
-- `hf_model_evaluation/` – instructions plus utilities for orchestrating evaluation jobs, generating reports, and mapping metrics. The `scripts/` folder hosts entry points such as `run_eval_job.py`, `evaluation_manager.py`, and supporting tools. Requirements live in `requirements.txt`.
-- `hf-llm-trainer/` – a comprehensive training skill with `SKILL.md` guidance, helper scripts (e.g., `train_sft_example.py`, `convert_to_gguf.py`, cost estimators), and deep reference docs under `references/`.
-- `hf-paper-publisher/` – tools for publishing and managing research papers on Hugging Face Hub. Index papers from arXiv, link papers to models/datasets, generate professional research articles from templates, and manage paper authorship. Includes paper templates (`standard`, `modern`, `arxiv`, `ml-report`) and citation generation utilities.
-- `pyproject.toml` defines minimal tooling metadata for the repository, and `LICENSE` covers usage.
-
-### Install these skills in Claude Code
+### Claude Code
 
 1. Register the repository as a plugin marketplace:
    ```
@@ -43,15 +39,33 @@ Skills are self-contained folders that package instructions, scripts, and resour
 3. Choose the folder you want (`hf-llm-trainer`, `hf_model_evaluation`, `hf_dataset_creator`, or `hf-paper-publisher`) and select **Install now**.
 4. Prefer commands? After registering the marketplace, run `/plugin install <skill-folder>@huggingface-skills` (for example, `/plugin install hf-llm-trainer@huggingface-skills`).
 
-### Use these skills with Codex
+### Codex
 
-Codex looks for long-lived instructions in `AGENTS.md`, so copy or symlink this repository’s `AGENTS.md` into your Codex profile (default `~/.codex/AGENTS.md`) or point `CODEX_HOME=$(pwd)/.codex` at the workspace before launching the CLI to scope the guidance per project. Codex rebuilds its instruction chain every run, so after updating the file you can verify the active guidance with `codex --ask-for-approval never "Summarize the current instructions."` or `codex --cd hf-llm-trainer --ask-for-approval never "Show which instruction files are active."` to confirm the Hugging Face skills are being read. Keep the skill folders accessible from that profile so Codex can reuse the templates, scripts, and references you mention inside the instructions. [Codex AGENTS guide](https://developers.openai.com/codex/guides/agents-md)
+1. Copy or symlink this repository’s `AGENTS.md` file to your Codex profile (default: `~/.codex/AGENTS.md`). Or, set `CODEX_HOME=$(pwd)/.codex` in your workspace to use a project-specific file.
+3. After updating `AGENTS.md`, run `codex --ask-for-approval never "Summarize the current instructions."` to verify the instructions are loaded.
+4. For more details, see the [Codex AGENTS guide](https://developers.openai.com/codex/guides/agents-md).
 
-### Install the Gemini CLI extension
+### Gemini CLI
 
-This repository already includes a `gemini-extension.json`, so you can treat it as a Gemini CLI extension when you prefer the Gemini tooling. Install it locally with `gemini extensions install /Users/ben/code/skills --consent` (or pass the GitHub URL) and restart Gemini CLI; the extension will appear as `huggingface-skills` because the CLI copies each extension into `~/.gemini/extensions`. Refresh it with `gemini extensions update huggingface-skills` when the repo changes, temporarily disable or scope it with `gemini extensions disable|enable huggingface-skills --scope workspace`, and, when you want live edits without reinstalling, run `gemini extensions link /Users/ben/code/skills` so the CLI reads directly from this working tree. [Gemini CLI extensions](https://geminicli.com/docs/extensions/#installing-an-extension)
+1. This repo includes `gemini-extension.json`. Use it as a Gemini CLI extension.
+2. Install locally:  
+   `gemini extensions install . --consent`  
+   or use the GitHub URL.
+3. Restart Gemini CLI. The extension appears as `huggingface-skills` in `~/.gemini/extensions`. Run `gemini extensions list` to verify.
+7. See [Gemini CLI extensions docs](https://geminicli.com/docs/extensions/#installing-an-extension) for more help.
 
-### Use an installed skill
+## Skills
+
+This repository contains a few skills to get you started. You can also contribute your own skills to the repository.
+
+### Available skills
+
+- `hf_dataset_creator/` – prompts, templates, and scripts for creating structured training data sets.
+- `hf_model_evaluation/` – instructions plus utilities for orchestrating evaluation jobs, generating reports, and mapping metrics.
+- `hf-llm-trainer/` – a comprehensive training skill with `SKILL.md` guidance, helper scripts (e.g., `train_sft_example.py`, `convert_to_gguf.py`, cost estimators).
+- `hf-paper-publisher/` – tools for publishing and managing research papers on Hugging Face Hub. Index papers from arXiv, link papers to models/datasets, generate professional research articles from templates, and manage paper authorship.
+
+### Using skills in your coding agent
 
 Once a skill is installed, mention it directly while giving your coding agent instructions:
 

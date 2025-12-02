@@ -1,6 +1,6 @@
 # We Got Claude to Fine-Tune Open Source LLMs
 
-We gave Claude the ability to fine-tune language models. Not just write training scripts, but to actually submit jobs to cloud GPUs, monitor progress, and push finished models to the Hugging Face Hub. This tutorial shows you how it works and how to use it yourself.
+We gave Claude the ability to fine-tune language models using a new tool called [Hugging Face Skills](https://hf-learn.short.gy/gh-hf-skills). Not just write training scripts, but to actually submit jobs to cloud GPUs, monitor progress, and push finished models to the Hugging Face Hub. This tutorial shows you how it works and how to use it yourself.
 
 > [!NOTE]
 > Claude Code can use "skills"—packaged instructions, scripts, and domain knowledge—to accomplish specialized tasks. The `hf-llm-trainer` skill teaches Claude everything it needs to know about training: which GPU to pick for your model size, how to configure Hub authentication, when to use LoRA versus full fine-tuning, and how to handle the dozens of other decisions that go into a successful training run.
@@ -25,15 +25,13 @@ The model trains on Hugging Face GPUs while you do other things. When it's done,
 
 This isn't a toy demo. The skill supports the same training methods used in production: supervised fine-tuning, direct preference optimization, and reinforcement learning with verifiable rewards. You can train models from 0.5B to 70B parameters, convert them to GGUF for local deployment, and run multi-stage pipelines that combine different techniques.
 
----
-
 ## Setup and Install
 
 Before starting, you'll need:
 
-- **A Hugging Face account** with a [Pro](https://hf.co/pro) or [Team](https://hf.co/enterprise) plan (Jobs require a paid plan)
-- **A write-access token** from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
-- **Coding Agent** like Claude Code, OpenAI Codex, or Google's Gemini CLI
+- A Hugging Face account with a [Pro](https://hf.co/pro) or [Team](https://hf.co/enterprise) plan (Jobs require a paid plan)
+- A write-access token from [huggingface.co/settings/tokens](https://huggingface.co/settings/tokens)
+- A coding agent like Claude Code, OpenAI Codex, or Google's Gemini CLI
 
 Hugging Face skills are compatible with Claude Code, Codex, and Gemini CLI. With integrations Cursor, Windsurf, and Continue, on the way.
 
@@ -112,11 +110,11 @@ Start with a simple and clear instruction to fine tune a specific model
 Fine-tune Qwen3-0.6B on the trl-lib/Capybara dataset for instruction following. 
 ```
 
-Claude analyzes your request and prepares a training configuration. For a 0.6B model on a demo dataset, it selects `t4-small`—enough GPU for this model size and the cheapest option available.
+The coding agent analyzes your request and prepares a training configuration. For a 0.6B model on a demo dataset, it selects `t4-small`—enough GPU for this model size and the cheapest option available.
 
 ### Review Before Submitting
 
-Before Claude submits anything, you'll see the configuration:
+Before your coding agent submits anything, you'll see the configuration:
 
 ```
 I'll fine-tune Qwen/Qwen3-0.6B on trl-lib/Capybara using SFT.
@@ -130,7 +128,7 @@ Configuration:
 The model will be pushed to Hub automatically. Should I submit?
 ```
 
-This is your chance to adjust anything. Change the output repo name, pick different hardware, or ask Claude to modify training parameters. Once you approve, Claude submits the job.
+This is your chance to adjust anything. Change the output repo name, pick different hardware, or ask Claude to modify training parameters. Once you approve, the agent submits the job.
 
 ### Track Progress
 
@@ -154,7 +152,7 @@ The skill includes Trackio integration, so you can watch training loss decrease 
 How's my training job doing?
 ```
 
-Claude fetches the logs and summarizes progress.
+Then the agent fetches the logs and summarizes progress.
 
 ### Use Your Model
 
@@ -167,7 +165,7 @@ model = AutoModelForCausalLM.from_pretrained("username/qwen-capybara-sft")
 tokenizer = AutoTokenizer.from_pretrained("username/qwen-capybara-sft")
 ```
 
-That's the full loop. You described what you wanted in plain English, and Claude handled GPU selection, script generation, job submission, authentication, and persistence. The whole thing cost about thirty cents.
+That's the full loop. You described what you wanted in plain English, and the agent handled GPU selection, script generation, job submission, authentication, and persistence. The whole thing cost about thirty cents.
 
 ## Training Methods
 
@@ -183,10 +181,10 @@ Use SFT when you have high-quality examples of the behavior you want. Customer s
 Fine-tune Qwen3-0.6B on my-org/support-conversations for 3 epochs.
 ```
 
-Claude validates the dataset, selects hardware (a10g-large with LoRA for a 7B model), and configures training with checkpoints and monitoring.
+The agent validates the dataset, selects hardware (a10g-large with LoRA for a 7B model), and configures training with checkpoints and monitoring.
 
 > [!TIP]
-> For models larger than 3B parameters, Claude automatically uses LoRA (Low-Rank Adaptation) to reduce memory requirements. This makes training 7B or 13B models feasible on single GPUs while preserving most of the quality of full fine-tuning.
+> For models larger than 3B parameters, the agent automatically uses LoRA (Low-Rank Adaptation) to reduce memory requirements. This makes training 7B or 13B models feasible on single GPUs while preserving most of the quality of full fine-tuning.
 
 ### Direct Preference Optimization (DPO)
 
@@ -200,7 +198,7 @@ The dataset has 'chosen' and 'rejected' columns.
 ```
 
 > [!WARNING]
-> DPO is sensitive to dataset format. It requires columns named exactly `chosen` and `rejected`, or a `prompt` column with the input. Claude validates this first and shows you how to map columns if your dataset uses different names.
+> DPO is sensitive to dataset format. It requires columns named exactly `chosen` and `rejected`, or a `prompt` column with the input. The agent validates this first and shows you how to map columns if your dataset uses different names.
 
 ### Group Relative Policy Optimization (GRPO)
 
@@ -214,7 +212,7 @@ The model generates responses, receives rewards based on correctness, and learns
 
 ## Hardware and Cost
 
-Claude selects hardware based on your model size, but understanding the tradeoffs helps you make better decisions.
+The agent selects hardware based on your model size, but understanding the tradeoffs helps you make better decisions.
 
 ### Model Size to GPU Mapping
 
@@ -248,13 +246,13 @@ Checkpoints every 500 steps, 3 epochs, cosine learning rate.
 
 ## Dataset Validation
 
-Dataset format is the most common source of training failures. Claude can validate datasets before you spend GPU time.
+Dataset format is the most common source of training failures. The agent can validate datasets before you spend GPU time.
 
 ```
 Check if my-org/conversation-data works for SFT training.
 ```
 
-Claude runs a quick inspection on CPU (fractions of a penny) and reports:
+The agent runs a quick inspection on CPU (fractions of a penny) and reports:
 
 ```
 Dataset validation for my-org/conversation-data:
@@ -266,14 +264,14 @@ DPO: ✗ INCOMPATIBLE
   Missing 'chosen' and 'rejected' columns
 ```
 
-If your dataset needs transformation, Claude can show you how:
+If your dataset needs transformation, the agent can show you how:
 
 ```
 My DPO dataset uses 'good_response' and 'bad_response' instead
 of 'chosen' and 'rejected'. How do I fix this?
 ```
 
-Claude provides mapping code and can incorporate it directly into your training script.
+The agent provides mapping code and can incorporate it directly into your training script.
 
 ## Monitoring Training
 
@@ -285,7 +283,7 @@ https://huggingface.co/spaces/username/trackio
 
 This shows training loss, learning rate, and validation metrics. A healthy run shows steadily decreasing loss.
 
-Ask Claude about status anytime:
+Ask the agent about status anytime:
 
 ```
 What's the status of my training job?
@@ -301,7 +299,7 @@ Learning rate: 1.2e-5
 Estimated completion: ~20 minutes
 ```
 
-If something goes wrong, Claude helps diagnose. Out of memory? Claude suggests reducing batch size or upgrading hardware. Dataset error? Claude identifies the mismatch. Timeout? Claude recommends longer duration or faster training settings.
+If something goes wrong, the agent helps diagnose. Out of memory? the agent suggests reducing batch size or upgrading hardware. Dataset error? The agent identifies the mismatch. Timeout? The agent recommends longer duration or faster training settings.
 
 ## Converting to GGUF
 
@@ -312,7 +310,7 @@ Convert my fine-tuned model to GGUF with Q4_K_M quantization.
 Push to username/my-model-gguf.
 ```
 
-Claude submits a conversion job that merges LoRA adapters, converts to GGUF, applies quantization, and pushes to Hub.
+The agent submits a conversion job that merges LoRA adapters, converts to GGUF, applies quantization, and pushes to Hub.
 
 Then use it locally:
 
@@ -322,7 +320,7 @@ ollama run hf.co/username/my-model-gguf
 
 ## What's Next
 
-We've shown that Claude can handle the full lifecycle of model fine-tuning: validating data, selecting hardware, generating scripts, submitting jobs, monitoring progress, and converting outputs. This turns what used to be a specialized skill into something you can do through conversation.
+We've shown that coding agents like Claude Code, Codex, or Gemini CLI can handle the full lifecycle of model fine-tuning: validating data, selecting hardware, generating scripts, submitting jobs, monitoring progress, and converting outputs. This turns what used to be a specialized skill into something you can do through conversation.
 
 Some things to try:
 

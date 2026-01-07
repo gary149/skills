@@ -70,13 +70,9 @@ class HFDatasetSQL:
 
     def _setup_connection(self):
         """Configure DuckDB connection for HF access."""
-        # Install and load httpfs extension for hf:// protocol
-        self.conn.execute("INSTALL httpfs;")
-        self.conn.execute("LOAD httpfs;")
-
         # Set HF token if available (for private datasets)
         if self.token:
-            self.conn.execute(f"SET hf_token='{self.token}';")
+            self.conn.execute(f"CREATE SECRET hf_token (TYPE HUGGINGFACE, TOKEN '{self.token}');")
 
     def _build_hf_path(
         self, dataset_id: str, split: str = "*", config: Optional[str] = None, revision: str = "~parquet"
